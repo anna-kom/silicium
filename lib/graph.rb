@@ -291,7 +291,7 @@ module Silicium
     def kruskal_mst(graph)
       mst = UnorientedGraph.new
       uf = UnionFind.new(graph)
-      graph_to_sets(graph).each do |label, edge|
+      graph_to_sets(graph).each do |edge, label|
         unless uf.connected?(edge[0], edge[1])
           mst.add_vertex!(edge[0])
           mst.add_vertex!(edge[1])
@@ -305,9 +305,9 @@ module Silicium
 
     class UnionFind
       def initialize(graph)
-        @parents = graph.vertices.inject([]) do |parents, vertex|
-          parents << vertex
-          parents
+        @parents = []
+        graph.vertices.keys.each do |vertex|
+          @parents[vertex] = vertex
         end
       end
 
@@ -322,15 +322,26 @@ module Silicium
     end
 
     ##
-    # "Split" graph into elements like :label = [from, to]
+    # "Split" graph into elements like :[from, to] = label
     def graph_to_sets(graph)
       labels = {}
       graph.vertices.keys.each do |from|
         graph.adjacted_with(from).each do |to|
-          labels[graph.get_edge_label(from, to)] = Pair.new(from, to)
+          labels[Pair.new(from, to)] = graph.get_edge_label(from, to)
         end
       end
-      labels = labels.to_set.sort_by { |elem| elem[0] }.to_h
+      labels.to_set.sort_by { |elem| elem[1] }.to_h
     end
+
+    def sum_labels(graph)
+      labels = 0
+      graph.vertices.keys.each do |from|
+        graph.adjacted_with(from).each do |to|
+          labels += graph.get_edge_label(from, to)
+        end
+      end
+      labels / 2
+    end
+
   end
 end
