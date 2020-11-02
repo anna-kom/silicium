@@ -293,6 +293,8 @@ module Silicium
       uf = UnionFind.new(graph)
       graph_to_sets(graph).each do |label, edge|
         unless uf.connected?(edge[0], edge[1])
+          mst.add_vertex!(edge[0])
+          mst.add_vertex!(edge[1])
           mst.add_edge!(edge[0], edge[1])
           mst.label_edge!(edge[0], edge[1], label)
           uf.union(edge[0], edge[1])
@@ -303,7 +305,10 @@ module Silicium
 
     class UnionFind
       def initialize(graph)
-        @parents = graph.vertices.inject([]) { |parents, i| parents[i] = i; parents }
+        @parents = graph.vertices.inject([]) do |parents, vertex|
+          parents << vertex
+          parents
+        end
       end
 
       def connected?(vertex1, vertex2)
@@ -320,9 +325,9 @@ module Silicium
     # "Split" graph into elements like :label = [from, to]
     def graph_to_sets(graph)
       labels = {}
-      graph.vertices.each do |from|
-        adjacted_with(from).each do |to|
-          labels[get_edge_label(from, to)] = Pair.new(from, to)
+      graph.vertices.keys.each do |from|
+        graph.adjacted_with(from).each do |to|
+          labels[graph.get_edge_label(from, to)] = Pair.new(from, to)
         end
       end
       labels = labels.to_set.sort_by { |elem| elem[0] }.to_h

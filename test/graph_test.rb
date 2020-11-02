@@ -890,21 +890,14 @@ class GraphTest < SiliciumTest
   end
 
 
-  def test_kruskal_one_vertex
-    g = UnorientedGraph.new([{ v: 0, i: [] }])
-    mst = kruskal_mst(g)
-
-    pred = mst.vertex_number == 1 && mst.edge_number == 0 && mst.has_vertex?(0)
-    assert(pred)
-  end
-
   def test_kruskal_one_edge
     g = UnorientedGraph.new([{ v: 0, i: [1] },
-                             { v: 1,  i: [0] }])
+                             { v: 1,  i: [] }])
     g.label_edge!(0, 1, 10)
     mst = kruskal_mst(g)
 
-    pred = mst.vertex_number == 2 && mst.edge_number == 1 && mst.has_edge?(0, 1) && mst.get_edge_label(0, 1) == 10 && mst.has_vertex?(0) && mst.has_vertex?(1)
+    pred = mst.has_vertex?(0) && mst.has_vertex?(1) && mst.vertex_number == 2 && mst.edge_number == 1
+    pred = pred && mst.has_edge?(0, 1) && mst.get_edge_label(0, 1) == 10
     assert(pred)
   end
 
